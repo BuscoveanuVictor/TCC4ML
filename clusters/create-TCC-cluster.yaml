@@ -1,0 +1,52 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: TCC-cluster
+  region: us-east-1
+  version: "1.31"
+
+
+vpc:
+  clusterEndpoints:
+    publicAccess:  true   # Imi permite să accesez EKS API de pe internet
+    privateAccess: true   # Permite nodurilor să comunice cu EKS API ca sa nu mai iasă pe internet
+  nat:
+    gateway: Single     # NAT pentru a permite nodurilor private să acceseze internetul
+
+
+# Identificarea utilizatorilor IAM care vor avea acces de administrator la cluster
+iamIdentityMappings:
+  - arn: arn:aws:iam::823361200000:user/victor
+    groups:
+      - system:masters
+    username: victor
+    noDuplicateARNs: true
+
+
+
+# Details
+
+# La crearea vpc ului se vor crea automat 3 subnet-uri publice si 3 private in 3 AZ diferite
+# Acest lucru este important pentru a asigura disponibilitatea ridicată a clusterului
+# in caz ca un AZ cade, clusterul poate functiona in celelalte AZ-uri
+
+# Pentru a vedea starea clusterului daca s-a sters, creat sau pentru a verifica logurile in cazul
+# unor erori, te poti duce in la Cloud Formation si cauti stack-ul cu numele clusterului
+
+# La crearea clusterului se scriu in fisierul ~/.kube/config detaliile de conectare la cluster
+# pentru a putea folosi kubectl pentru a interactiona cu clusteru 
+
+# Procesul de comunicare intre client(kubectl) si server(EKS API) 
+
+  # Cererea: kubectl citește fișierul de configurare și află adresa URL a clusterului.
+
+  # Autentificarea (AWS IAM): kubectl apelează AWS CLI în spate pentru a genera un jeton (token) de securitate folosind credențialele tale de utilizator (victor).
+
+  # Verificarea: AWS EKS primește cererea și token-ul, apoi întreabă serviciul IAM: „Acest token aparține lui victor? Are el voie să facă asta?”
+
+  # Autorizarea (Kubernetes RBAC): După ce AWS confirmă identitatea, Kubernetes verifică dacă utilizatorul victor are permisiunile necesare (grupul system:masters pe care l-ai pus în YAML).
+
+  # Răspunsul: Dacă totul este în regulă, API-ul îți trimite lista de noduri înapoi în terminal.
+
+  

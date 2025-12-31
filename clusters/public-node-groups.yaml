@@ -1,0 +1,20 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: TCC-cluster
+  region: us-east-1
+
+managedNodeGroups:
+  - name: public-worker
+    instanceType: t3.medium
+    minSize: 1
+    maxSize: 2
+    desiredCapacity: 1 
+    privateNetworking: false # Nodurile create sunt accesibile de pe internet(public)
+    ssh:
+      allow: true
+
+
+#Conctare la un nod public
+# ssh -i ~/.ssh/id_rsa ec2-user@ip-node-public

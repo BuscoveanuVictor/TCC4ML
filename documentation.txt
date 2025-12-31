@@ -1,0 +1,40 @@
+Iată exact ce ai realizat până în acest punct și cum se leagă componentele:
+1. Componentele Arhitecturale
+
+    Planul de Control Hibrid: Ai două clustere (Kind pentru local, EKS pentru Cloud). Ele reprezintă resursele tale de calcul eterogene.
+
+    Admission Controller (Webhook-ul): Acesta este "vama" sistemului. Ai configurat Kubernetes (prin MutatingWebhookConfiguration) să nu lase niciun Pod să treacă fără aprobarea serverului tău.
+
+    Serverul de Decizie (Go): Acesta este "creierul". El nu doar mută fișiere, ci face o analiză semantică (se uită la labels/job-type) și decide destinația optimă.
+
+2. Fluxul Logic (Ce ai demonstrat deja)
+
+    Cererea: Utilizatorul trimite un Pod generic (ex: un Spark Job).
+
+    Intercepția: API Server-ul din Kubernetes oprește execuția și trimite un JSON prin HTTPS/TLS către serverul tău Go.
+
+    Analiza: Serverul tău vede eticheta job-type: spark.
+
+    Orchestrarea: Serverul tău "injectează" (patching) reguli de plasare în Pod (nodeSelector).
+
+    Execuția: Kubernetes primește Pod-ul modificat. Acum, Pod-ul nu mai acceptă orice nod, ci caută specific un nod cu eticheta zone: cloud.
+
+3. De ce este acest lucru important pentru Licență?
+
+În loc să ai două clustere separate unde muți tu fișierele manual, ai creat un Plan de Control Unificat.
+
+    Transparență: Utilizatorul final nu trebuie să știe unde rulează job-ul. El doar trimite job-ul, iar sistemul tău îl "împinge" pe infrastructura corectă.
+
+    Confidential Computing: Ai demonstrat că poți forța sarcinile critice să ruleze doar pe noduri securizate din Cloud, interzicând execuția lor pe noduri locale nesigure.
+
+    Optimizarea Resurselor: Job-urile mici (actori) rămân local (cost zero), iar cele mari (Spark) merg pe Cloud (scalabilitate).
+
+Ce lipsește pentru a fi "Gata de Predare"?
+
+Pentru ca proiectul să fie complet "Hibrid", următorul pas logic (dacă nu l-ai făcut deja) este să te asiguri că:
+
+    Nodurile din AWS EKS au eticheta zone=cloud.
+
+    Nodurile din Kind au eticheta zone=local.
+
+    Serverul tău Go rulează într-un loc unde ambele clustere îl pot vedea (sau ai câte o instanță în fiecare cluster).

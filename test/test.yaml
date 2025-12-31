@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-spark-cloud
+  labels:
+    job-type: spark  # Acest label ar trebui să declanșeze mutarea pe Cloud
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-simplu-local
+  labels:
+    job-type: actor  # Acest label ar trebui să îl lase pe Local
+spec:
+  containers:
+  - name: nginx
+    image: nginx

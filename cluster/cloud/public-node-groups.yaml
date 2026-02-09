@@ -1,0 +1,26 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: tcc-cluster-cloud-v2
+  region: us-east-1
+  
+managedNodeGroups:
+  - name: public-worker-v2
+    instanceType: t3.small
+    minSize: 1
+    maxSize: 2
+
+    labels:
+      zone: cloud
+
+    desiredCapacity: 1 
+    privateNetworking: false 
+    ssh:
+      allow: true
+
+
+# eksctl create nodegroup -f cloud-public-node-groups.yaml --profile admin-eks
+
+# Conctare la un nod public
+# ssh -i ~/.ssh/id_rsa ec2-user@ip-node-public

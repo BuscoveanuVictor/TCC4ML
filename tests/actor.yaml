@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: actor
+  labels:
+    job-type: actor 
+spec:
+  containers:
+  - name: nginx
+    image: nginx

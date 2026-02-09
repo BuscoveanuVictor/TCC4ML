@@ -1,0 +1,44 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: tcc-cluster-cloud-v2  # <--- TREBUIE să fie numele clusterului existent
+  region: us-east-1
+
+# Aici definim DOAR grupurile de noduri pe care vrem să le adăugăm la clusterul existent
+managedNodeGroups:
+  # -----------------------------------------------------------
+  # 1. GRUPUL PUBLIC
+  # -----------------------------------------------------------
+  - name: public-worker-v2
+    instanceType: t3.small
+    minSize: 1
+    maxSize: 2
+    desiredCapacity: 1
+    labels:
+      zone: cloud
+    privateNetworking: false 
+    ssh:
+      allow: true
+
+  # -----------------------------------------------------------
+  # 2. GRUPUL PRIVAT (High Confidential)
+  # -----------------------------------------------------------
+  - name: private-nodes-v2
+    instanceType: t3.small
+    minSize: 1
+    maxSize: 2
+    desiredCapacity: 1
+    labels:
+      zone: cloud
+      security-level: high-confidential
+    privateNetworking: true 
+    volumeSize: 20
+    iam:
+      withAddonPolicies:
+        imageBuilder: true
+        autoScaler: true
+        cloudWatch: true
+
+
+# eksctl create nodegroup -f nodegroups.yaml

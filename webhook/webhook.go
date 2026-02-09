@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 
 	admissionv1 "k8s.io/api/admission/v1"
@@ -28,7 +28,7 @@ type patchOperation struct {
 func handleMutate(w http.ResponseWriter, r *http.Request) {
 	var body []byte
 	if r.Body != nil {
-		if data, err := ioutil.ReadAll(r.Body); err == nil {
+		if data, err := io.ReadAll(r.Body); err == nil {
 			body = data
 		}
 	}
@@ -96,13 +96,19 @@ func handleMutate(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+
+	// Serverul nostru primeste la fiecare creare de pod 
+	// o cerere la endpoint-ul /mutate (vezi in webhook-config.yaml la service) 
+	// pe care o procesează in functia handleMutate
 	http.HandleFunc("/mutate", handleMutate)
 	
-	// Fișierele TLS montate din Secret-ul Kubernetes
+	// Fisierele TLS montate din Secret-ul Kubernetes
+	// pentru a avea o conexiune securizata HTTPS
 	cert := "/etc/webhook/certs/tls.crt"
 	key := "/etc/webhook/certs/tls.key"
 
-	fmt.Println("Serverul de orchestrare hibridă pornește pe portul 443 (HTTPS)...")
+	
+	fmt.Println("Serverul de orchestrare hibrida asculta pe portul 443 (HTTPS)...")
 	if err := http.ListenAndServeTLS(":443", cert, key, nil); err != nil {
 		fmt.Printf("Eroare start server: %v\n", err)
 	}

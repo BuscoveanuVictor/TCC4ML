@@ -38,3 +38,18 @@ Pentru ca proiectul să fie complet "Hibrid", următorul pas logic (dacă nu l-a
     Nodurile din Kind au eticheta zone=local.
 
     Serverul tău Go rulează într-un loc unde ambele clustere îl pot vedea (sau ai câte o instanță în fiecare cluster).
+
+
+
+Clusters namaspace
+
+admin@tcc-cluster-cloud.us-east-1.eksctl.io 
+kind-tcc-cluster-local  
+
+go mod init dispatcher Această comandă creează buletinul de identitate al proiectului tău.
+
+go mod tidy Această comandă este mecanicul care face curățenie și aprovizionare.
+
+
+!! daca schimbi numele unui namespace de cluster atunci secretele asociate acestuia 
+se pierd si trebuie sa le asociezi noului nume

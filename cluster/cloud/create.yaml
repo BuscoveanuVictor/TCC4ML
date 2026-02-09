@@ -2,27 +2,30 @@ apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
 
 metadata:
-  name: TCC-cluster
+  name: tcc-cluster-cloud-v2
   region: us-east-1
   version: "1.31"
-
 
 vpc:
   clusterEndpoints:
     publicAccess:  true   # Imi permite să accesez EKS API de pe internet
     privateAccess: true   # Permite nodurilor să comunice cu EKS API ca sa nu mai iasă pe internet
   nat:
-    gateway: Single     # NAT pentru a permite nodurilor private să acceseze internetul
-
+    gateway: Single     # permite nodurilor private sa acceseze internetul
 
 # Identificarea utilizatorilor IAM care vor avea acces de administrator la cluster
 iamIdentityMappings:
-  - arn: arn:aws:iam::823361200000:user/victor
+  - arn: arn:aws:iam::856723974853:user/admin
     groups:
       - system:masters
-    username: victor
+    username: admin
     noDuplicateARNs: true
 
+
+# eksctl create cluster -f create.yaml --profile admin-eks
+
+# comanda pentru configurarea kubectl pentru a se conecta la clusterul creat
+# aws eks update-kubeconfig --region us-east-1 --name tcc-cluster-cloud-v2
 
 
 # Details

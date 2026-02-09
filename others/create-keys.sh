@@ -31,3 +31,8 @@ openssl req -new -key tls.key -out tls.csr -config csr.conf -subj "/CN=hybrid-we
 # 6. Semnează certificatul serverului cu CA-ul tău
 openssl x509 -req -in tls.csr -CA ca.crt -CAkey ca.key \
 -CAcreateserial -out tls.crt -days 365 -extensions v3_req -extfile csr.conf
+
+
+
+# aplicare la cluster
+# kubectl create secret tls hybrid-webhook-certs --cert=tls.crt --key=tls.key

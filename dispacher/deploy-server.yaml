@@ -1,0 +1,42 @@
+# inaite de a rula asta trebuie sa rulezi comanda de mai jos pentru a crea secretul 
+# cu configuratia de kube si aws pentru dispatcher
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hybrid-dispatcher
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hybrid-dispatcher
+  template:
+    metadata:
+      labels:
+        app: hybrid-dispatcher
+    spec:
+      # 1. IDENTITATEA (Permisiuni RBAC)
+      serviceAccountName: dispatcher-sa
+      
+      containers:
+        - name: dispatcher
+          image: buscoveanuvictor/tcc-dispatcher:v1
+          imagePullPolicy: Always
+          
+          # 2. MONTAREA VOLUMELOR (Unde apar fișierele în container)
+          volumeMounts:
+            - name: kube-config-vol
+              mountPath: "/root/.kube"
+              readOnly: true
+            - name: aws-creds-vol
+              mountPath: "/root/.aws"
+              readOnly: true
+
+      # 3. DEFINIREA VOLUMELOR (De unde luăm fișierele - din Secrete)
+      volumes:
+        - name: kube-config-vol
+          secret:
+            secretName: dispatcher-kubeconfig
+        - name: aws-creds-vol
+          secret:
+            secretName: dispatcher-aws-creds

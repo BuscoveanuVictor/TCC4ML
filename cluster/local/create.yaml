@@ -1,0 +1,17 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+networking:
+  # Aceasta este linia care rezolvă eroarea pe WSL2!
+  kubeProxyMode: "iptables"
+nodes:
+  - role: control-plane
+    # Păstrăm versiunea stabilă v1.29.2
+    image: kindest/node:v1.29.2
+    labels:
+      zone: local
+
+# Creare cluster local
+# kind create cluster --config create.yaml --name tcc-cluster-local
+
+# Pentru a obține kubeconfig-ul pentru clusterul local creat cu kind
+# kind export kubeconfig --name tcc-cluster-local   

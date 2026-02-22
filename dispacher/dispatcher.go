@@ -24,7 +24,6 @@ func main() {
 	// Kubernetes injectează automat variabilele de mediu KUBERNETES_SERVICE_HOST și PORT
 	localConfig, err := rest.InClusterConfig()
 	if err != nil {
-		// AICI ESTE CHEIA: Vrem să vedem această eroare!
 		panic(fmt.Sprintf("EROARE CRITICĂ: InClusterConfig a eșuat! Eroare: %v", err))
 	}
 
@@ -49,6 +48,7 @@ func main() {
 
 	fmt.Printf("2. Încerc conectarea la CLOUD (%s)...\n", cloudContextName)
 	
+	// Folosim client-go pentru a încărca configurația kubeconfig și a obține un client pentru EKS
 	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
 	cloudConfig, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
 		loadingRules,
@@ -59,6 +59,7 @@ func main() {
 		panic(fmt.Sprintf("EROARE CRITICĂ AWS: Nu pot încărca config-ul. Eroare: %v", err))
 	}
 
+	// Testăm conexiunea imediat
 	cloudClient, err := kubernetes.NewForConfig(cloudConfig)
 	if err != nil {
 		panic(err)
@@ -71,6 +72,7 @@ func main() {
 	fmt.Println("🚀 Dispatcher OPERAȚIONAL. Aștept pod-uri...")
 	
 	for {
+		// Listăm pod-urile din clusterul local pentru a detecta care trebuie migrate
 		pods, err := localClient.CoreV1().Pods("default").List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
 			fmt.Printf("⚠️ Eroare citire local (retry in 5s): %v\n", err)
@@ -78,6 +80,7 @@ func main() {
 			continue
 		}
 
+		// Verificăm fiecare pod pentru a decide dacă trebuie mutat
 		for _, pod := range pods.Items {
 			if pod.Status.Phase == corev1.PodPending {
 				if val, ok := pod.Spec.NodeSelector["zone"]; ok && val == "cloud" {
@@ -96,12 +99,16 @@ func main() {
 }
 
 func movePodToCloud(local *kubernetes.Clientset, cloud *kubernetes.Clientset, pod *corev1.Pod) error {
+	// Pentru a muta un pod, vom crea un nou pod în cloud și apoi vom șterge pe cel local.
 	newPod := pod.DeepCopy()
 	newPod.ResourceVersion = ""
 	newPod.UID = ""
 	newPod.Status = corev1.PodStatus{}
 	newPod.Spec.NodeName = ""
 
+	// Aici se pot adauga modificări specifice pentru cloud, 
+	// dacă e necesar (ex: adăugarea de tolerations, schimbarea imaginii, etc.)
+	
 	_, err := cloud.CoreV1().Pods("default").Create(context.TODO(), newPod, metav1.CreateOptions{})
 	if err != nil {
 		return fmt.Errorf("AWS Create: %v", err)

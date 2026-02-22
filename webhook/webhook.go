@@ -48,11 +48,10 @@ func handleMutate(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Eroare unmarshal pod", http.StatusBadRequest)
 		return
 	}
-
-	// 3. LOGICA SEMANTICĂ DE ORCHESTRARE (Inima temei tale)
+	
 	var patches []patchOperation
 	
-	// Verificăm etichetele (labels) sau numele imaginii
+	// 3.Verificăm etichetele (labels) sau numele imaginii
 	jobType := pod.Labels["job-type"]
 	isConfidential := pod.Labels["security"] == "confidential"
 
@@ -69,7 +68,7 @@ func handleMutate(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Orchestrare: Pod %s alocat către resursă LOCALĂ\n", pod.Name)
 	}
 
-	// Creăm patch-ul JSON pentru a adăuga NodeSelector-ul
+	// Creăm patch-ul JSON pentru a adăuga NodeSelector-ul la Pod
 	patches = append(patches, patchOperation{
 		Op:    "add",
 		Path:  "/spec/nodeSelector",
@@ -80,8 +79,11 @@ func handleMutate(w http.ResponseWriter, r *http.Request) {
 
 	// 4. Pregătește răspunsul (AdmissionResponse)
 	response := admissionv1.AdmissionResponse{
+		// Permitem întotdeauna crearea pod-ului, dar cu patch-ul nostru pentru a-l redirecționa
 		Allowed: true,
+		// Raspunsul trebuie să conțină același UID ca cererea pentru a fi corelat
 		UID:     admissionReview.Request.UID,
+		// Patch-ul JSON pentru a modifica Pod-ul
 		Patch:   patchBytes,
 		PatchType: func() *admissionv1.PatchType {
 			pt := admissionv1.PatchTypeJSONPatch

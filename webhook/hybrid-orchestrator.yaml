@@ -13,16 +13,13 @@ webhooks:
         apiVersions: ["v1"]
         resources: ["pods"]
 
-    # AICI ESTE MODIFICAREA
     objectSelector:
       matchExpressions:
         - key: app
           operator: NotIn
-          # Acum lista de excluderi conține ambele aplicații de sistem
-          values: ["hybrid-webhook", "hybrid-dispatcher", ]
+          values: ["hybrid-webhook", "hybrid-dispatcher"]
           
     clientConfig:
-      # CaBundle-ul tău (l-am păstrat pe cel din mesajul tău)
       caBundle: 
       service:
         name: hybrid-webhook-service

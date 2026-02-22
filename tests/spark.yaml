@@ -3,7 +3,9 @@ kind: Pod
 metadata:
   name: spark
   labels:
-    job-type: spark  
+    job-type: spark
+    zone: cloud
+    security-level: high-confidential
 spec:
   containers:
   - name: nginx

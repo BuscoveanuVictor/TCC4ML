@@ -23,7 +23,7 @@ spec:
           image: buscoveanuvictor/tcc-dispatcher:v1
           imagePullPolicy: Always
           
-          # 2. MONTAREA VOLUMELOR (Unde apar fișierele în container)
+          # 2. MONTAREA VOLUMELOR (Pentru a accesa kubeconfig și AWS creds)
           volumeMounts:
             - name: kube-config-vol
               mountPath: "/root/.kube"
@@ -32,7 +32,7 @@ spec:
               mountPath: "/root/.aws"
               readOnly: true
 
-      # 3. DEFINIREA VOLUMELOR (De unde luăm fișierele - din Secrete)
+      # 3. DEFINIREA VOLUMELOR (De unde ia fișierele)
       volumes:
         - name: kube-config-vol
           secret:

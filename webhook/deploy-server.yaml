@@ -29,7 +29,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: hybrid-webhook-service # Numele EXACT din configurarea Webhook
+  name: hybrid-webhook-service
 spec:
   ports:
     - port: 443
